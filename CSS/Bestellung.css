@@ -1,0 +1,17 @@
+.flex-container {
+    display: flex;
+    height: auto;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+  
+  .flex-container > .item {
+    text-align: center;
+  }
+
+  #warenkorb{
+    width: 25rem;
+  }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8" />
+    <!-- für später: CSS include -->
+    <!-- <link rel="stylesheet" href="XXX.css"/> -->
+    <!-- für später: JavaScript include -->
+    <!-- <script src="XXX.js"></script> -->
+    <title>Text des Titels</title>
+</head>
+
+<body>
+    <h1>Bestellung</h1>
+    <h2>Speisekarte</h2>
+    <img src="Bilder/PizzaM.jpg" alt="Margherita" width="100px" height="100px"/>
+    <p>Margherita</p>
+    <p>4.00€</p>
+
+    <form action="https://echo.fbi.h-da.de/" method="post">
+        <!--Hinweis: Bedenken Sie, dass ein Formular nur Daten für Formularelemente überträgt, 
+            die ein name-Attribut haben! Außerdem brauchen Sie üblicherweise ein <form>, 
+                das die Formularelemente umschließt!-->
+            <select name="Pizzas[]" id="warenkorb" size="7" tabindex="1" multiple>
+                <option value="Fungi">Fungi</option>
+                <option value="Salami">Salami</option>
+            </select>
+        <p>Preis: 10€ </p>
+        Name:
+        <br>
+        <input type="text" name="Name" value="" id="name" required>
+        <br>
+        Adresse:
+        <br>
+        <input type="text" name="Adresse" value="" id="adresse" required>
+        <br>
+        Postleitzahl:
+        <br>
+        <input pattern="[0-9]{5}" name="plz" id="plz" title="Fünfstellige Postleitzahl in Deutschland." value="" required>
+        <br>
+        <input type="button" tabindex="3" value="Alles Löschen!">
+        <input type="button" tabindex="4" value="Auswahl Löschen!">
+        <!--type submit schickt Formular ab-->
+        <input type="submit" value="Bestellen!" tabindex="5">    
+    </form>
+</body>
+
+</html>
