@@ -60,3 +60,11 @@ function entfernenWarenkorb() {
     updateGesamtPreis();
 }
 
+function bestellungSelectAll() {
+    "use strict";
+    var wkSite = document.getElementById("warenkorb"),
+        i;
+    for (i = 0; i < wkSite.options.length; i += 1) {
+        wkSite.options[i].selected = true;
+    }
+}

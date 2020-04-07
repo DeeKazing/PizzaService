@@ -63,31 +63,25 @@ class Bestellung extends Page
         }
         echo <<<HTML
     </div>
-    <form action="https://echo.fbi.h-da.de/" method="post">
+    <form action="Bestellung.php" method="POST"> <!--https://echo.fbi.h-da.de/-->
+    <!--POST bei Sensiblen Daten | GET bei vielen Daten und nicht sensiblen Daten-->
         <!--Hinweis: Bedenken Sie, dass ein Formular nur Daten für Formularelemente überträgt, 
             die ein name-Attribut haben! Außerdem brauchen Sie üblicherweise ein <form>, 
                 das die Formularelemente umschließt!-->
-            <select name="Pizzas[]" id="warenkorb" size="5" multiple>
+            <select name="PizzaListe[]" id="warenkorb" size="5" multiple>
                 <!--  <option value="volvo">Volvo</option> -->
                 <!--  ^^option  ^^value     ^^InnerText -->
             </select>
             <div id="gesamtPreis">Gesamtpreis: 0.00€</div>
-        Name:
-        <br>
-        <input type="text" name="Name" value="" id="name" required>
-        <br>
-        Adresse:
-        <br>
-        <input type="text" name="Adresse" value="" id="adresse" required>
-        <br>
-        Postleitzahl:
-        <br>
-        <input pattern="[0-9]{5}" name="plz" id="plz" title="Fünfstellige Postleitzahl in Deutschland." value="" required>
+        <label>Name: <input type="text" name="Name" value="" id="name" placeholder="Ihr Name!" required></label>
+        <label>Stadt: <input type="text" name="Stadt" value="" id="stadt" placeholder="Ihre Stadt!" required></label>
+        <label>Postleitzahl: <input pattern="[0-9]{5}" name="Postleitzahl" id="plz" placeholder="Fünfstellige Postleitzahl!" value="" required></label>        
+        <label>Straße: <input type="text" name="Straße" value="" id="straße" placeholder="Ihre Straße!" required></label>
         <br>
         <input type="button" id="warenkorbleeren" value="Alles Löschen!" onclick="WarenkorbLeeren()">
         <input type="button"  value="Auswahl Löschen!" onclick="entfernenWarenkorb()">
         <!--type submit schickt Formular ab-->
-        <input type="submit" value="Bestellen!">    
+        <input type="submit" value="Bestellen!" onclick="bestellungSelectAll()">    
     </form>
     HTML;
         $this->generatePageFooter();
@@ -95,8 +89,47 @@ class Bestellung extends Page
 
     protected function processReceivedData()
     {
+       {
         parent::processReceivedData();
+        // to do: call processReceivedData() for all members
+        if($this->_database == false){
+            die("ERROR: Could not connect.". $this->_database->connect_error);
+        }
+        if(sizeof($_POST) > 0){
+            //var_dump($_POST);
+            if((!isset($_POST['Name'])) || (!isset($_POST['Stadt'])) || (!isset($_POST['Postleitzahl'])) || (!isset($_POST['Straße'])) || (sizeof($_POST['Pizzas']) < 0)){
+                throw new Exception("Eingaben ungültig");
+            }
+            $Name = $this->_database->real_escape_string($_REQUEST['Name']);
+            $Stadt = $this->_database->real_escape_string($_REQUEST['Stadt']);
+            $Postleitzahl = $this->_database->real_escape_string($_REQUEST['Postleitzahl']);
+            $Straße = $this->_database->real_escape_string($_REQUEST['Straße']);
+        
+            
+            $sql = "INSERT INTO `bestellung` (KundeName, Stadt, Postleitzahl, Straße, Bestellstatus) VALUES ('$Name', '$Stadt', '$Postleitzahl','$Straße','Bestellt')";
+            if($this->_database->query($sql) === true){
+                echo "Records inserted successfully.";
+            } else{
+                echo "ERROR: Could not be able to execute $sql. ";//.$mysqli->error
+            }
+            $BestellungID = $this->_database->insert_id; 
+            $_SESSION['BestellungID'] = $BestellungID;
+            foreach(($_POST['Pizzas']) as $PizzaBestellung){
+                $PizzaBestellung = $this->_database->real_escape_string($PizzaBestellung);
+                $sql = "INSERT INTO `bestelltepizza` (fBestellungID, fPizzaNummer) VALUES(($BestellungID), (SELECT PizzaNummer FROM `angebot` WHERE angebot.PizzaName = '$PizzaBestellung'));";
+                 if($this->_database->query($sql) === true){
+                    echo "Records inserted successfully.";
+            } else{
+                echo "ERROR: Could not be able to execute $sql. ";//.$mysqli->error
+            }
+            }
+           
+            //var_dump($sql);
+            header('Location: Kunde.php');
+        }
     }
+}
+
 
     public static function main()
     {
