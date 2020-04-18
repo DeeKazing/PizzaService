@@ -54,7 +54,7 @@ class PageTemplate extends Page
      *
      * @return none
      */
-    protected function __destruct() 
+    public function __destruct() 
     {
         parent::__destruct();
     }

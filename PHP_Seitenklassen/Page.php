@@ -1,31 +1,4 @@
-<?php	// UTF-8 marker äöüÄÖÜß€
-/**
- * Class Page for the exercises of the EWA lecture
- * Demonstrates use of PHP including class and OO.
- * Implements Zend coding standards.
- * Generate documentation with Doxygen or phpdoc
- * 
- * PHP Version 7
- *
- * @file     Page.php
- * @package  Page Templates
- * @author   Bernhard Kreling, <bernhard.kreling@h-da.de> 
- * @author   Ralf Hahn, <ralf.hahn@h-da.de> 
- * @version  2.0 
- */
- 
-/**
- * This abstract class is a common base class for all 
- * HTML-pages to be created. 
- * It manages access to the database and provides operations 
- * for outputting header and footer of a page.
- * Specific pages have to inherit from that class.
- * Each inherited class can use these operations for accessing the db
- * and for creating the generic parts of a HTML-page.
- *
- * @author   Bernhard Kreling, <bernhard.kreling@h-da.de> 
- * @author   Ralf Hahn, <ralf.hahn@h-da.de> 
- */ 
+<?php	
 abstract class Page
 {
     // --- ATTRIBUTES ---
@@ -47,7 +20,14 @@ abstract class Page
      */
     protected function __construct() 
     {
-        $this->_database = /* to do: create instance of class MySQLi */;
+        error_reporting (E_ALL);
+
+        $this->_database = new MySQLi("localhost", "root", "", "pizzaservice_2020");
+        
+        //$this->_database = new MySQLi("localhost", "root", "", "pizzaservice2020");
+        
+        if (mysqli_connect_errno())
+            throw new Exception("Connect failed: " . mysqli_connect_error());
         
         // set charset to UTF8!!
         if (!$this->_database->set_charset("utf8"))
@@ -59,7 +39,7 @@ abstract class Page
      *
      * @return none
      */
-    protected function __destruct()    
+    public function __destruct()    
     {
         // to do: close database
     }

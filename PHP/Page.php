@@ -6,8 +6,18 @@ abstract class Page
 
     protected function __construct()
     {
-        $this->_database = new MySQLi("localhost", "root", "", "pizzaservice2020");
+        error_reporting (E_ALL);
+
+        $this->_database = new MySQLi("localhost", "root", "", "pizzaservice_2020");
+
+        //$this->_database = new MySQLi("localhost", "root", "", "pizzaservice2020");
         $this->_database->set_charset("utf8");
+        if (mysqli_connect_errno())
+            throw new Exception("Connect failed: " . mysqli_connect_error());
+        
+        // set charset to UTF8!!
+        if (!$this->_database->set_charset("utf8"))
+          throw new Exception($this->_database->error);
     }
 
     /**

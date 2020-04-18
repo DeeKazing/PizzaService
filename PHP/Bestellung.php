@@ -19,12 +19,12 @@ class Bestellung extends Page
 
     protected function getViewData()
     {
-        $angebotitems = $this->_database->query("SELECT * FROM angebot");
+        $angebotitems = $this->_database->query("SELECT * FROM article");
         if (!$angebotitems)
             throw new Exception("Query failed:" /*.$_database->error_reporting */);
         $pizzenausdb = [];
         while ($item = $angebotitems->fetch_assoc()) {
-            array_push($pizzenausdb, new Angebot($item['PizzaName'], $item['Bilddatei'], $item['Preis']));
+            array_push($pizzenausdb, new Angebot($item['name'], $item['picture'], $item['price']));
         }
         return $pizzenausdb;
         // to do: fetch data for this view from the database
@@ -73,10 +73,7 @@ class Bestellung extends Page
                 <!--  ^^option  ^^value     ^^InnerText -->
             </select>
             <div id="gesamtPreis">Gesamtpreis: 0.00€</div>
-        <label>Name: <input type="text" name="Name" value="" id="name" placeholder="Ihr Name!" required></label>
-        <label>Stadt: <input type="text" name="Stadt" value="" id="stadt" placeholder="Ihre Stadt!" required></label>
-        <label>Postleitzahl: <input pattern="[0-9]{5}" name="Postleitzahl" id="plz" placeholder="Fünfstellige Postleitzahl!" value="" required></label>        
-        <label>Straße: <input type="text" name="Straße" value="" id="straße" placeholder="Ihre Straße!" required></label>
+        <label>Adresse: <input type="text" name="adresse" value="" id="adresse" placeholder="Ihr Adresse!" required></label>
         <br>
         <input type="button" id="warenkorbleeren" value="Alles Löschen!" onclick="WarenkorbLeeren()">
         <input type="button"  value="Auswahl Löschen!" onclick="entfernenWarenkorb()">
@@ -96,27 +93,23 @@ class Bestellung extends Page
             die("ERROR: Could not connect.". $this->_database->connect_error);
         }
         if(sizeof($_POST) > 0){
-            //var_dump($_POST);
-            if((!isset($_POST['Name'])) || (!isset($_POST['Stadt'])) || (!isset($_POST['Postleitzahl'])) || (!isset($_POST['Straße'])) || (sizeof($_POST['Pizzas']) < 0)){
+            if((!isset($_POST['adresse']) < 0)){
                 throw new Exception("Eingaben ungültig");
             }
-            $Name = $this->_database->real_escape_string($_REQUEST['Name']);
-            $Stadt = $this->_database->real_escape_string($_REQUEST['Stadt']);
-            $Postleitzahl = $this->_database->real_escape_string($_REQUEST['Postleitzahl']);
-            $Straße = $this->_database->real_escape_string($_REQUEST['Straße']);
+            $adresse = $this->_database->real_escape_string($_POST['adresse']);
         
             
-            $sql = "INSERT INTO `bestellung` (KundeName, Stadt, Postleitzahl, Straße, Bestellstatus) VALUES ('$Name', '$Stadt', '$Postleitzahl','$Straße','Bestellt')";
+            $sql = "INSERT INTO `order` (address) VALUES ('$adresse')";
             if($this->_database->query($sql) === true){
                 echo "Records inserted successfully.";
             } else{
                 echo "ERROR: Could not be able to execute $sql. ";//.$mysqli->error
             }
             $BestellungID = $this->_database->insert_id; 
-            $_SESSION['BestellungID'] = $BestellungID;
-            foreach(($_POST['Pizzas']) as $PizzaBestellung){
+            $_SESSION['id'] = $BestellungID;
+            foreach(($_POST['PizzaListe']) as $PizzaBestellung){
                 $PizzaBestellung = $this->_database->real_escape_string($PizzaBestellung);
-                $sql = "INSERT INTO `bestelltepizza` (fBestellungID, fPizzaNummer) VALUES(($BestellungID), (SELECT PizzaNummer FROM `angebot` WHERE angebot.PizzaName = '$PizzaBestellung'));";
+                $sql = "INSERT INTO `ordered_articles` (f_order_id, f_article_id) VALUES(($BestellungID), (SELECT id FROM `article` WHERE article.name = '$PizzaBestellung'));";
                  if($this->_database->query($sql) === true){
                     echo "Records inserted successfully.";
             } else{
