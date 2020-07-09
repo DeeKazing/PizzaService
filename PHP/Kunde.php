@@ -20,16 +20,13 @@ class Kunde extends Page
 
     protected function getViewData($BestellungID)
     {
-        $bestelltePizzas = $this->_database->query("SELECT Bestellstatus, PizzaName FROM `bestelltepizza`,`angebot`,`bestellung` WHERE bestelltepizza.fBestellungID = bestellung.BestellungID AND bestelltepizza.fPizzaNummer = angebot.PizzaNummer AND bestellung.BestellungID = $BestellungID;");
+        $bestelltePizzas = $this->_database->query("SELECT ordered_articles.status, article.name FROM `ordered_articles`,`article`,`order` WHERE ordered_articles.f_order_id = order.id AND ordered_articles.f_article_id = article.id AND order.id = $BestellungID;");
         if(!$bestelltePizzas)
-            throw new Exception("Query failed:" .$_database->error);
+            throw new Exception("Query failed!"); //.$_database->error);
         $ergebnis = [];
+        var_dump($ergebnis);
         while($item = $bestelltePizzas->fetch_assoc()){
-            $pizzaname = $item["PizzaName"];
-            $bestellstatus = $item["Bestellstatus"];
-            if(!$pizzaname)
-                throw new Exception("Query failed:" .$_database->error);
-            array_push($ergebnis, new BestelltePizzas($pizzaname,$bestellstatus));
+            array_push($ergebnis,new BestelltePizzas($item['status'],$item['name']));
         }
         return $ergebnis;
     }
@@ -37,7 +34,7 @@ class Kunde extends Page
     protected function generateView()
     {
         if(isset($_SESSION['BestellungID'])){
-            $ergebnis = $this->getViewData($_SESSION['BestellungID']);
+            $ergebnis = $this->getViewData($_SESSION['BestellungID']);            
         }
         $this->generatePageHeader('Kunde');
         echo <<<HTML
@@ -52,15 +49,22 @@ class Kunde extends Page
             </ul>
         </nav>
     </header>
-    <h1>Kunde</h1>
+    <h1>Kunde</h1>    
     <h2>Lieferstatus:</h2>
-    <p>Margherita: bestellt</p>
-    <p>Salami: Im Ofen</p>       
-    <p>Tonno: feritg</p>       
-    <p>Hawai: bestellt</p>            
-    <a href="Bestellung.php"><button>Neue Bestellung</button></a>
-
     HTML;
+    foreach($ergebnis as $item){
+        $ostatus = htmlspecialchars($item->status, ENT_QUOTES | ENT_HTML5 | ENT_DISALLOWED | ENT_SUBSTITUTE, 'UTF-8');
+        $oname = htmlspecialchars($item->name);
+    echo <<<HTML
+            <div class="text"><b>Pizza</b>:$oname</div>
+            <div class="Status" id="status">$ostatus</div>
+            <br>
+    HTML;
+    }
+echo<<<HTML
+           
+    <a href="Bestellung.php"><button>Neue Bestellung</button></a>
+HTML;
         $this->generatePageFooter();
     }
 
@@ -72,6 +76,7 @@ class Kunde extends Page
     public static function main()
     {
         try {
+            session_start();
             $page = new Kunde();
             $page->processReceivedData();
             $page->generateView();
